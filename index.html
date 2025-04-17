@@ -18,7 +18,7 @@
   <h1>📬 我的临时邮箱</h1>
   <div id="email-list">加载中...</div>
 
-script>
+<script>
   function loadInbox() {
     fetch('inbox.json')
       .then(res => res.json())
@@ -42,7 +42,7 @@ script>
       });
   }
 
-  // 页面首次加载就执行一次
+  // 页面首次加载执行一次
   loadInbox();
 
   // 每 15 秒刷新一次
