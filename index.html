@@ -18,7 +18,8 @@
   <h1>📬 我的临时邮箱</h1>
   <div id="email-list">加载中...</div>
 
-  <script>
+script>
+  function loadInbox() {
     fetch('inbox.json')
       .then(res => res.json())
       .then(data => {
@@ -39,7 +40,14 @@
         document.getElementById('email-list').innerText = '加载失败，请稍后重试';
         console.error(err);
       });
-  </script>
+  }
+
+  // 页面首次加载就执行一次
+  loadInbox();
+
+  // 每 15 秒刷新一次
+  setInterval(loadInbox, 15000);
+</script>
 </body>
 </html>
 
