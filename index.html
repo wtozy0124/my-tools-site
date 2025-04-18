@@ -1,32 +1,54 @@
-<script>
-  function loadInbox() {
-    fetch('inbox.json?t=' + Date.now()) // 防止缓存
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('email-list');
-        list.innerHTML = '';
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>我的临时邮箱</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { text-align: center; }
+    #email-list { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+    .mail { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .mail:last-child { border: none; }
+    .from { font-weight: bold; }
+    .subject { color: #333; }
+    .date { color: gray; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>📫 我的临时邮箱</h1>
+  <div id="email-list">加载中...</div>
 
-        // 跳过系统测试行，取第一封真实邮件
-        const realEmail = data.find(mail => mail.from !== '系统测试');
-        if (realEmail) {
-          const div = document.createElement('div');
-          div.className = 'mail';
-          div.innerHTML = `
-            <div class="from">📩 来自：${realEmail.from}</div>
-            <div class="subject">主题：${realEmail.subject}</div>
-            <div class="date">时间：${realEmail.date}</div>
-          `;
-          list.appendChild(div);
-        } else {
-          list.innerHTML = '📭 当前暂无真实邮件';
-        }
-      })
-      .catch(err => {
-        document.getElementById('email-list').innerText = '加载失败，请稍后重试';
-        console.error(err);
-      });
-  }
+  <script>
+    function loadInbox() {
+      fetch('inbox.json?t=' + Date.now()) // 加时间戳防缓存
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('email-list');
+          list.innerHTML = '';
 
-  loadInbox();
-  setInterval(loadInbox, 10000); // 每 10 秒刷新
-</script>
+          // 跳过系统测试，展示第一封真实邮件
+          const realEmail = data.find(mail => mail.from !== '系统测试');
+          if (realEmail) {
+            const div = document.createElement('div');
+            div.className = 'mail';
+            div.innerHTML = `
+              <div class="from">📩 来自：${realEmail.from}</div>
+              <div class="subject">主题：${realEmail.subject}</div>
+              <div class="date">时间：${realEmail.date}</div>
+            `;
+            list.appendChild(div);
+          } else {
+            list.innerHTML = '📭 当前暂无真实邮件';
+          }
+        })
+        .catch(err => {
+          document.getElementById('email-list').innerText = '加载失败，请稍后重试';
+          console.error(err);
+        });
+    }
+
+    loadInbox();
+    setInterval(loadInbox, 10000); // 每 10 秒刷新
+  </script>
+</body>
+</html>
