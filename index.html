@@ -1,45 +1,40 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>我的临时邮箱</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
-    h1 { text-align: center; }
-    #email-list { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-    .mail { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    body { font-family: sans-serif; background: #f6f6f6; padding: 40px; }
+    h1 { text-align: center; font-size: 28px; }
+    #email-list { max-width: 720px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; }
+    .mail { border-bottom: 1px solid #ddd; padding: 16px 0; }
     .mail:last-child { border: none; }
-    .from { font-weight: bold; }
-    .subject { color: #333; }
-    .date { color: gray; font-size: 12px; }
+    .from { font-weight: bold; font-size: 16px; }
+    .subject { margin-top: 4px; }
+    .date, .body { color: #666; font-size: 14px; margin-top: 4px; white-space: pre-wrap; }
   </style>
 </head>
 <body>
-  <h1>📫 我的临时邮箱</h1>
+  <h1>📬 我的临时邮箱</h1>
   <div id="email-list">加载中...</div>
 
   <script>
     function loadInbox() {
-      fetch('inbox.json?t=' + Date.now()) // 加时间戳防缓存
+      fetch('inbox.json?_t=' + Date.now())
         .then(res => res.json())
         .then(data => {
           const list = document.getElementById('email-list');
           list.innerHTML = '';
-
-          // 跳过系统测试，展示第一封真实邮件
-          const realEmail = data.find(mail => mail.from !== '系统测试');
-          if (realEmail) {
-            const div = document.createElement('div');
-            div.className = 'mail';
-            div.innerHTML = `
-              <div class="from">📩 来自：${realEmail.from}</div>
-              <div class="subject">主题：${realEmail.subject}</div>
-              <div class="date">时间：${realEmail.date}</div>
-            `;
-            list.appendChild(div);
-          } else {
-            list.innerHTML = '📭 当前暂无真实邮件';
-          }
+          const mail = data[0]; // 只显示最新
+          const div = document.createElement('div');
+          div.className = 'mail';
+          div.innerHTML = `
+            <div class="from">📩 来自：${mail.from}</div>
+            <div class="subject">主题：${mail.subject}</div>
+            <div class="date">时间：${mail.date}</div>
+            <div class="body">正文：${mail.body || '(无正文)'}</div>
+          `;
+          list.appendChild(div);
         })
         .catch(err => {
           document.getElementById('email-list').innerText = '加载失败，请稍后重试';
@@ -48,7 +43,8 @@
     }
 
     loadInbox();
-    setInterval(loadInbox, 10000); // 每 10 秒刷新
+    setInterval(loadInbox, 15000);
   </script>
 </body>
 </html>
+
