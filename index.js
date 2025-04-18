@@ -76,13 +76,14 @@ async function listMessages(auth) {
 // ✅ 只保留这一处主入口！
 let credentialsRaw;
 
-// 优先从 GitHub Actions 环境变量加载
+// 优先从 GitHub Actions 环境变量读取
 if (process.env.CREDENTIALS_JSON) {
   credentialsRaw = process.env.CREDENTIALS_JSON;
 } else {
-  // 否则读取本地文件（适用于本地运行）
+  // 本地运行时读本地文件
   credentialsRaw = fs.readFileSync('credentials.json', 'utf-8');
 }
 
 authorize(JSON.parse(credentialsRaw), listMessages);
+
 
