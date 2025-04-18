@@ -1,57 +1,8 @@
 [
   {
-    "from": "系统测试",
-    "subject": "自动更新时间",
-    "date": "2025-04-18T07:58:36.258Z"
-  },
-  {
     "from": "wtozy0124 <notifications@github.com>",
     "subject": "[wtozy0124/my-tools-site] Run failed: Update inbox.json every 5 min - main (529f57e)",
-    "date": "Fri, 18 Apr 2025 00:51:48 -0700"
-  },
-  {
-    "from": "yang zhao <clematheson823@gmail.com>",
-    "subject": "gfgfd",
-    "date": "Fri, 18 Apr 2025 15:45:13 +0800"
-  },
-  {
-    "from": "GitHub <support@github.com>",
-    "subject": "[wtozy0124/my-tools-site] User bypassed a blocked secret",
-    "date": "Fri, 18 Apr 2025 00:43:17 -0700"
-  },
-  {
-    "from": "wtozy0124 <notifications@github.com>",
-    "subject": "[wtozy0124/my-tools-site] Run failed: Update inbox.json every 5 min - main (a0c5ab4)",
-    "date": "Thu, 17 Apr 2025 22:43:29 -0700"
-  },
-  {
-    "from": "wtozy0124 <notifications@github.com>",
-    "subject": "[wtozy0124/my-tools-site] Run failed: Update inbox.json every 5 min - main (e2b4dbe)",
-    "date": "Thu, 17 Apr 2025 22:41:16 -0700"
-  },
-  {
-    "from": "wtozy0124 <notifications@github.com>",
-    "subject": "[wtozy0124/my-tools-site] Run failed: Update inbox.json every 5 min - main (e2b4dbe)",
-    "date": "Thu, 17 Apr 2025 22:37:22 -0700"
-  },
-  {
-    "from": "wtozy0124 <notifications@github.com>",
-    "subject": "[wtozy0124/my-tools-site] Run failed: Update inbox.json every 5 min - main (00bdfe0)",
-    "date": "Thu, 17 Apr 2025 22:34:50 -0700"
-  },
-  {
-    "from": "wtozy0124 <notifications@github.com>",
-    "subject": "[wtozy0124/my-tools-site] Run failed: Update inbox.json every 5 min - main (12c9c44)",
-    "date": "Thu, 17 Apr 2025 22:31:58 -0700"
-  },
-  {
-    "from": "wtozy0124 <notifications@github.com>",
-    "subject": "[wtozy0124/my-tools-site] Run failed: Update inbox.json every 5 min - main (12c9c44)",
-    "date": "Thu, 17 Apr 2025 22:29:01 -0700"
-  },
-  {
-    "from": "wtozy0124 <notifications@github.com>",
-    "subject": "[wtozy0124/my-tools-site] Run failed: Update inbox.json every 5 min - main (a8342f3)",
-    "date": "Thu, 17 Apr 2025 22:22:03 -0700"
+    "date": "Fri, 18 Apr 2025 00:51:48 -0700",
+    "body": "[wtozy0124/my-tools-site] Update inbox.json every 5 min workflow run\r\n\r\nRepository: wtozy0124/my-tools-site\r\nWorkflow: Update inbox.json every 5 min\r\nDuration: 26.0 seconds\r\nFinished: 2025-04-18 07:51:28 UTC\r\n\r\nView results: https://github.com/wtozy0124/my-tools-site/actions/runs/14531825498\r\n\r\nJobs:\r\n  * update-inbox failed (1 annotation)\r\n\r\n-- \r\nYou are receiving this because you are subscribed to this thread.\r\nManage your GitHub Actions notifications: https://github.com/settings/notifications\r\n"
   }
 ]
