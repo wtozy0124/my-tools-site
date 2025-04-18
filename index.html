@@ -4,51 +4,28 @@
   <meta charset="UTF-8" />
   <title>我的临时邮箱</title>
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 20px;
-      background: #f0f0f0;
-    }
-    h1 {
-      text-align: center;
-    }
-    #email-list {
-      max-width: 700px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-    }
-    .mail {
-      border-bottom: 1px solid #ddd;
-      padding: 10px 0;
-    }
-    .from {
-      font-weight: bold;
-    }
-    .subject {
-      color: #333;
-    }
-    .date {
-      color: gray;
-      font-size: 12px;
-    }
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { text-align: center; }
+    #email-list { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+    .mail { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .mail:last-child { border: none; }
+    .from { font-weight: bold; }
+    .subject { color: #333; }
+    .date { color: gray; font-size: 12px; }
   </style>
 </head>
 <body>
-  <h1>📬 我的临时邮箱</h1>
+  <h1>📮 我的临时邮箱</h1>
   <div id="email-list">加载中...</div>
 
   <script>
     function loadInbox() {
-      fetch('inbox.json?ts=' + Date.now())
+      fetch('inbox.json?t=' + Date.now()) // 加时间戳确保不缓存
         .then(res => res.json())
         .then(data => {
           const list = document.getElementById('email-list');
           list.innerHTML = '';
-
-          const mail = data[0];
-          if (mail) {
+          data.forEach(mail => {
             const div = document.createElement('div');
             div.className = 'mail';
             div.innerHTML = `
@@ -57,9 +34,7 @@
               <div class="date">时间：${mail.date}</div>
             `;
             list.appendChild(div);
-          } else {
-            list.innerHTML = '暂无邮件';
-          }
+          });
         })
         .catch(err => {
           document.getElementById('email-list').innerText = '加载失败，请稍后重试';
@@ -67,10 +42,9 @@
         });
     }
 
-    // 首次加载
     loadInbox();
-    // 每 15 秒自动刷新
-    setInterval(loadInbox, 15000);
+    setInterval(loadInbox, 10000); // 每 10 秒刷新一次
   </script>
 </body>
 </html>
+
