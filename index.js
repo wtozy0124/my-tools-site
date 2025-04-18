@@ -52,8 +52,13 @@ async function listMessages(auth) {
 
   let results = [];
 
-  // ✅ 永远加入系统测试行，确保 inbox.json 每次都变
-  results.push({ from: "系统测试", subject: "自动更新时间", date: new Date().toISOString() });
+  // ✅ 添加系统测试项，确保内容变化
+  results.push({
+    from: '系统测试',
+    subject: '自动更新时间',
+    date: new Date().toISOString(),
+    hash: Math.random().toString(36).substring(2, 10) // 随机标识
+  });
 
   if (!messages.length) {
     console.log('暂无邮件。');
@@ -67,20 +72,16 @@ async function listMessages(auth) {
       const subject = headers.find(h => h.name === 'Subject')?.value || '(无标题)';
       const from = headers.find(h => h.name === 'From')?.value || '(未知发件人)';
       const date = headers.find(h => h.name === 'Date')?.value || '';
+
       results.push({ from, subject, date });
     }
   }
 
-  // ✅ 强制制造变化：添加随机注释确保 Git 识别变动
-  const finalContent = JSON.stringify(results, null, 2) + `\n<!-- ${Date.now()} -->`;
-
-  fs.writeFileSync('inbox.json', finalContent, 'utf-8');
-
-  console.log('✅ 邮件已写入 inbox.json');
-  console.log('✅ 写入内容如下:\n', finalContent);
+  fs.writeFileSync('inbox.json', JSON.stringify(results, null, 2), 'utf-8');
+  console.log('✅ inbox.json 写入完成 ✔');
 }
 
-// ✅ 主入口，从 Secret 或本地加载凭据
+// ✅ 主入口
 let credentialsRaw;
 
 if (process.env.CREDENTIALS_JSON) {
@@ -90,4 +91,5 @@ if (process.env.CREDENTIALS_JSON) {
 }
 
 authorize(JSON.parse(credentialsRaw), listMessages);
+
 
