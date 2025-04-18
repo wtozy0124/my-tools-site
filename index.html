@@ -20,7 +20,7 @@
 
 <script>
   function loadInbox() {
-    fetch('inbox.json')
+    fetch('inbox.json?t=' + Date.now())
       .then(res => res.json())
       .then(data => {
         const list = document.getElementById('email-list');
