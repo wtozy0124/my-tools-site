@@ -23,9 +23,6 @@
       border-bottom: 1px solid #ddd;
       padding: 10px 0;
     }
-    .mail:last-child {
-      border: none;
-    }
     .from {
       font-weight: bold;
     }
@@ -36,31 +33,22 @@
       color: gray;
       font-size: 12px;
     }
-    #updated-time {
-      text-align: center;
-      margin-bottom: 10px;
-      color: #888;
-      font-size: 14px;
-    }
   </style>
 </head>
 <body>
   <h1>📬 我的临时邮箱</h1>
-  <div id="updated-time">更新时间加载中...</div>
   <div id="email-list">加载中...</div>
 
   <script>
     function loadInbox() {
-      fetch('inbox.json?ts=' + Date.now())  // 防止缓存
+      fetch('inbox.json?ts=' + Date.now())
         .then(res => res.json())
         .then(data => {
           const list = document.getElementById('email-list');
-          const updated = document.getElementById('updated-time');
-
-          updated.innerText = '📅 数据更新时间：' + new Date(data.updatedAt).toLocaleString();
           list.innerHTML = '';
 
-          data.emails.forEach(mail => {
+          const mail = data[0];
+          if (mail) {
             const div = document.createElement('div');
             div.className = 'mail';
             div.innerHTML = `
@@ -69,7 +57,9 @@
               <div class="date">时间：${mail.date}</div>
             `;
             list.appendChild(div);
-          });
+          } else {
+            list.innerHTML = '暂无邮件';
+          }
         })
         .catch(err => {
           document.getElementById('email-list').innerText = '加载失败，请稍后重试';
@@ -77,9 +67,10 @@
         });
     }
 
+    // 首次加载
     loadInbox();
-    setInterval(loadInbox, 15000); // 每 15 秒自动刷新
+    // 每 15 秒自动刷新
+    setInterval(loadInbox, 15000);
   </script>
 </body>
 </html>
-
