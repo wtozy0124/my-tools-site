@@ -1,95 +1,49 @@
-console.log('🚀 脚本启动');
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>我的临时邮箱</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { text-align: center; }
+    #email-list { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+    .mail { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .mail:last-child { border: none; }
+    .from { font-weight: bold; }
+    .subject { color: #333; }
+    .date { color: gray; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>📮 我的临时邮箱</h1>
+  <div id="email-list">加载中...</div>
 
-const fs = require('fs');
-const readline = require('readline');
-const { google } = require('googleapis');
-
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
-const TOKEN_PATH = 'token.json';
-
-function authorize(credentials, callback) {
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
-  const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
-
-  if (fs.existsSync(TOKEN_PATH)) {
-    const token = fs.readFileSync(TOKEN_PATH);
-    oAuth2Client.setCredentials(JSON.parse(token));
-    callback(oAuth2Client);
-  } else {
-    getNewToken(oAuth2Client, callback);
-  }
-}
-
-function getNewToken(oAuth2Client, callback) {
-  const authUrl = oAuth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: SCOPES,
-  });
-  console.log('请在浏览器打开以下链接授权：\n', authUrl);
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-  rl.question('\n粘贴授权码：', (code) => {
-    rl.close();
-    oAuth2Client.getToken(code, (err, token) => {
-      if (err) return console.error('获取 token 出错', err);
-      oAuth2Client.setCredentials(token);
-      fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
-      console.log('授权成功，Token 已保存至 token.json\n');
-      callback(oAuth2Client);
-    });
-  });
-}
-
-async function listMessages(auth) {
-  const gmail = google.gmail({ version: 'v1', auth });
-  const res = await gmail.users.messages.list({
-    userId: 'me',
-    maxResults: 10,
-  });
-  const messages = res.data.messages || [];
-
-  let results = [];
-
-  // ✅ 添加系统测试项，确保内容变化
-  results.push({
-    from: '系统测试',
-    subject: '自动更新时间',
-    date: new Date().toISOString(),
-    hash: Math.random().toString(36).substring(2, 10) // 随机标识
-  });
-
-  if (!messages.length) {
-    console.log('暂无邮件。');
-  } else {
-    for (const msg of messages) {
-      const msgData = await gmail.users.messages.get({
-        userId: 'me',
-        id: msg.id,
-      });
-      const headers = msgData.data.payload.headers;
-      const subject = headers.find(h => h.name === 'Subject')?.value || '(无标题)';
-      const from = headers.find(h => h.name === 'From')?.value || '(未知发件人)';
-      const date = headers.find(h => h.name === 'Date')?.value || '';
-
-      results.push({ from, subject, date });
+  <script>
+    function loadInbox() {
+      fetch('inbox.json?t=' + Date.now()) // 加时间戳确保不缓存
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('email-list');
+          list.innerHTML = '';
+          data.forEach(mail => {
+            const div = document.createElement('div');
+            div.className = 'mail';
+            div.innerHTML = `
+              <div class="from">📩 来自：${mail.from}</div>
+              <div class="subject">主题：${mail.subject}</div>
+              <div class="date">时间：${mail.date}</div>
+            `;
+            list.appendChild(div);
+          });
+        })
+        .catch(err => {
+          document.getElementById('email-list').innerText = '加载失败，请稍后重试';
+          console.error(err);
+        });
     }
-  }
 
-  fs.writeFileSync('inbox.json', JSON.stringify(results, null, 2), 'utf-8');
-  console.log('✅ inbox.json 写入完成 ✔');
-}
-
-// ✅ 主入口
-let credentialsRaw;
-
-if (process.env.CREDENTIALS_JSON) {
-  credentialsRaw = process.env.CREDENTIALS_JSON;
-} else {
-  credentialsRaw = fs.readFileSync('credentials.json', 'utf-8');
-}
-
-authorize(JSON.parse(credentialsRaw), listMessages);
-
-
+    loadInbox();
+    setInterval(loadInbox, 10000); // 每 10 秒刷新一次
+  </script>
+</body>
+</html>
