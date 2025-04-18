@@ -1,0 +1,33 @@
+name: Update inbox.json every 5 min
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # 每5分钟触发一次
+  workflow_dispatch:        # 支持手动点击运行
+
+jobs:
+  update-inbox:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Gmail fetch script
+      run: node index.js
+
+    - name: Commit and push inbox.json
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add inbox.json
+        git commit -m "auto: update inbox.json" || echo "No changes to commit"
+        git push
