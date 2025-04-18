@@ -1,26 +1,107 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>临时邮箱 - 免费收信</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: "PingFang SC", "Microsoft Yahei", sans-serif;
+      background-color: #f3f4f6;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <div class="max-w-xl mx-auto mt-10 p-4 bg-white rounded shadow">
-    <h1 class="text-xl font-bold mb-4">你的临时邮箱地址</h1>
-    <div class="flex items-center space-x-2">
-      <input id="email" value="example@yourdomain.com" class="flex-1 px-2 py-1 border rounded" readonly />
-      <button onclick="copyEmail()" class="bg-blue-500 text-white px-3 py-1 rounded">复制</button>
+<body>
+  <div class="max-w-xl mx-auto px-4 py-6">
+
+    <!-- 邮箱信息栏 -->
+    <div class="bg-white shadow rounded-lg p-4 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div class="text-gray-800 text-sm sm:text-base font-medium mb-2 sm:mb-0">
+        当前邮箱：<span id="email" class="text-blue-600 font-mono select-all">example@yourdomain.com</span>
+      </div>
+      <div class="flex space-x-2">
+        <button onclick="copyEmail()" class="text-sm bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 transition">复制</button>
+        <button onclick="generateRandomEmail()" class="text-sm bg-gray-200 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-300 transition">更换邮箱</button>
+      </div>
     </div>
 
-    <h2 class="mt-6 mb-2 font-semibold">📥 收件箱</h2>
-    <div id="email-list" class="space-y-2 text-sm text-gray-700">
-      <!-- 邮件内容将在这里动态插入 -->
+    <!-- 邮件列表 -->
+    <div id="email-list" class="space-y-4">
+      <!-- 邮件卡片将动态注入 -->
     </div>
+
+    <!-- 页脚 -->
+    <div class="mt-8 text-xs text-center text-gray-400">
+      页面每 5 秒自动刷新｜临时邮箱永久免费使用
+    </div>
+
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // 模拟邮箱地址
+    const domain = "yourdomain.com";
+    let currentEmail = "example@" + domain;
+
+    function copyEmail() {
+      const input = document.createElement('input');
+      input.value = currentEmail;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      alert('邮箱地址已复制：' + currentEmail);
+    }
+
+    function generateRandomEmail() {
+      const name = Math.random().toString(36).substring(2, 10);
+      currentEmail = name + "@" + domain;
+      document.getElementById("email").textContent = currentEmail;
+    }
+
+    async function fetchInbox() {
+      try {
+        const res = await fetch('inbox.json?ts=' + Date.now());
+        const data = await res.json();
+        renderEmailList(data.messages || []);
+      } catch (e) {
+        console.error("读取邮件失败", e);
+      }
+    }
+
+    function renderEmailList(messages) {
+      const list = document.getElementById("email-list");
+      list.innerHTML = '';
+
+      if (!messages.length) {
+        list.innerHTML = `<div class="text-center text-gray-500">暂无邮件</div>`;
+        return;
+      }
+
+      messages.reverse().forEach(msg => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-4 rounded-lg shadow border border-gray-100";
+
+        card.innerHTML = `
+          <div class="text-sm text-gray-700">
+            <span class="font-medium text-gray-900">📬 主题：</span>${msg.subject || '无主题'}
+          </div>
+          <div class="text-sm text-gray-700 mt-1">
+            <span class="font-medium">发件人：</span>${msg.from || '未知'}
+          </div>
+          <div class="text-xs text-gray-500 mt-1">${new Date(msg.date).toLocaleString()}</div>
+          <details class="mt-3">
+            <summary class="cursor-pointer text-blue-500 hover:underline text-sm">点击查看邮件正文</summary>
+            <pre class="bg-gray-50 border mt-2 p-3 text-xs rounded overflow-auto whitespace-pre-wrap max-h-64">${JSON.stringify(msg, null, 2)}</pre>
+          </details>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    fetchInbox();
+    setInterval(fetchInbox, 5000); // 每 5 秒刷新一次
+  </script>
 </body>
 </html>
 
