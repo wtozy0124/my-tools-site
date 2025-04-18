@@ -1,50 +1,27 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <title>我的临时邮箱</title>
-  <style>
-    body { font-family: sans-serif; background: #f6f6f6; padding: 40px; }
-    h1 { text-align: center; font-size: 28px; }
-    #email-list { max-width: 720px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; }
-    .mail { border-bottom: 1px solid #ddd; padding: 16px 0; }
-    .mail:last-child { border: none; }
-    .from { font-weight: bold; font-size: 16px; }
-    .subject { margin-top: 4px; }
-    .date, .body { color: #666; font-size: 14px; margin-top: 4px; white-space: pre-wrap; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>临时邮箱 - 免费收信</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <h1>📬 我的临时邮箱</h1>
-  <div id="email-list">加载中...</div>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-xl mx-auto mt-10 p-4 bg-white rounded shadow">
+    <h1 class="text-xl font-bold mb-4">你的临时邮箱地址</h1>
+    <div class="flex items-center space-x-2">
+      <input id="email" value="example@yourdomain.com" class="flex-1 px-2 py-1 border rounded" readonly />
+      <button onclick="copyEmail()" class="bg-blue-500 text-white px-3 py-1 rounded">复制</button>
+    </div>
 
-  <script>
-    function loadInbox() {
-      fetch('inbox.json?_t=' + Date.now())
-        .then(res => res.json())
-        .then(data => {
-          const list = document.getElementById('email-list');
-          list.innerHTML = '';
-          const mail = data[0]; // 只显示最新
-          const div = document.createElement('div');
-          div.className = 'mail';
-          div.innerHTML = `
-            <div class="from">📩 来自：${mail.from}</div>
-            <div class="subject">主题：${mail.subject}</div>
-            <div class="date">时间：${mail.date}</div>
-            <div class="body">正文：${mail.body || '(无正文)'}</div>
-          `;
-          list.appendChild(div);
-        })
-        .catch(err => {
-          document.getElementById('email-list').innerText = '加载失败，请稍后重试';
-          console.error(err);
-        });
-    }
+    <h2 class="mt-6 mb-2 font-semibold">📥 收件箱</h2>
+    <div id="email-list" class="space-y-2 text-sm text-gray-700">
+      <!-- 邮件内容将在这里动态插入 -->
+    </div>
+  </div>
 
-    loadInbox();
-    setInterval(loadInbox, 15000);
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
+
 
