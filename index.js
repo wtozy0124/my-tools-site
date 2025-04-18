@@ -68,7 +68,8 @@ async function listMessages(auth) {
 
     results.push({ from, subject, date });
   }
-
+  
+  results.push({ from: "系统测试", subject: "自动更新时间", date: new Date().toISOString() });
   fs.writeFileSync('inbox.json', JSON.stringify(results, null, 2), 'utf-8');
   console.log('✅ 邮件已写入 inbox.json');
 }
