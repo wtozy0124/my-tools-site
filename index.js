@@ -74,7 +74,15 @@ async function listMessages(auth) {
 }
 
 // ✅ 只保留这一处主入口！
-fs.readFile('credentials.json', (err, content) => {
-  if (err) return console.error('读取 credentials.json 出错：', err);
-  authorize(JSON.parse(content), listMessages);
-});
+let credentialsRaw;
+
+// 优先从 GitHub Actions 环境变量加载
+if (process.env.CREDENTIALS_JSON) {
+  credentialsRaw = process.env.CREDENTIALS_JSON;
+} else {
+  // 否则读取本地文件（适用于本地运行）
+  credentialsRaw = fs.readFileSync('credentials.json', 'utf-8');
+}
+
+authorize(JSON.parse(credentialsRaw), listMessages);
+
