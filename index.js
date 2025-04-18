@@ -52,7 +52,7 @@ async function listMessages(auth) {
 
   let results = [];
 
-  // ✅ 始终加入这个系统测试数据
+  // ✅ 永远加入系统测试行，确保 inbox.json 每次都变
   results.push({ from: "系统测试", subject: "自动更新时间", date: new Date().toISOString() });
 
   if (!messages.length) {
@@ -71,10 +71,23 @@ async function listMessages(auth) {
     }
   }
 
-  // ✅ 永远写入 inbox.json
-  fs.writeFileSync('inbox.json', JSON.stringify(results, null, 2), 'utf-8');
+  // ✅ 强制制造变化：添加随机注释确保 Git 识别变动
+  const finalContent = JSON.stringify(results, null, 2) + `\n<!-- ${Date.now()} -->`;
+
+  fs.writeFileSync('inbox.json', finalContent, 'utf-8');
+
   console.log('✅ 邮件已写入 inbox.json');
+  console.log('✅ 写入内容如下:\n', finalContent);
 }
 
+// ✅ 主入口，从 Secret 或本地加载凭据
+let credentialsRaw;
 
+if (process.env.CREDENTIALS_JSON) {
+  credentialsRaw = process.env.CREDENTIALS_JSON;
+} else {
+  credentialsRaw = fs.readFileSync('credentials.json', 'utf-8');
+}
+
+authorize(JSON.parse(credentialsRaw), listMessages);
 
