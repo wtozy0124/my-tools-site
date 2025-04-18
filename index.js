@@ -49,42 +49,32 @@ async function listMessages(auth) {
     maxResults: 10,
   });
   const messages = res.data.messages || [];
-  if (!messages.length) {
-    console.log('暂无邮件。');
-    return;
-  }
 
   let results = [];
 
-  for (const msg of messages) {
-    const msgData = await gmail.users.messages.get({
-      userId: 'me',
-      id: msg.id,
-    });
-    const headers = msgData.data.payload.headers;
-    const subject = headers.find(h => h.name === 'Subject')?.value || '(无标题)';
-    const from = headers.find(h => h.name === 'From')?.value || '(未知发件人)';
-    const date = headers.find(h => h.name === 'Date')?.value || '';
-
-    results.push({ from, subject, date });
-  }
-  
+  // ✅ 始终加入这个系统测试数据
   results.push({ from: "系统测试", subject: "自动更新时间", date: new Date().toISOString() });
+
+  if (!messages.length) {
+    console.log('暂无邮件。');
+  } else {
+    for (const msg of messages) {
+      const msgData = await gmail.users.messages.get({
+        userId: 'me',
+        id: msg.id,
+      });
+      const headers = msgData.data.payload.headers;
+      const subject = headers.find(h => h.name === 'Subject')?.value || '(无标题)';
+      const from = headers.find(h => h.name === 'From')?.value || '(未知发件人)';
+      const date = headers.find(h => h.name === 'Date')?.value || '';
+      results.push({ from, subject, date });
+    }
+  }
+
+  // ✅ 永远写入 inbox.json
   fs.writeFileSync('inbox.json', JSON.stringify(results, null, 2), 'utf-8');
   console.log('✅ 邮件已写入 inbox.json');
 }
 
-// ✅ 只保留这一处主入口！
-let credentialsRaw;
-
-// 优先从 GitHub Actions 环境变量读取
-if (process.env.CREDENTIALS_JSON) {
-  credentialsRaw = process.env.CREDENTIALS_JSON;
-} else {
-  // 本地运行时读本地文件
-  credentialsRaw = fs.readFileSync('credentials.json', 'utf-8');
-}
-
-authorize(JSON.parse(credentialsRaw), listMessages);
 
 
