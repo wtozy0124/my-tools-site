@@ -1,53 +1,85 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>我的临时邮箱</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
-    h1 { text-align: center; }
-    #email-list { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-    .mail { border-bottom: 1px solid #ddd; padding: 10px 0; }
-    .mail:last-child { border: none; }
-    .from { font-weight: bold; }
-    .subject { color: #333; }
-    .date { color: gray; font-size: 12px; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    h1 {
+      text-align: center;
+    }
+    #email-list {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .mail {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+    .mail:last-child {
+      border: none;
+    }
+    .from {
+      font-weight: bold;
+    }
+    .subject {
+      color: #333;
+    }
+    .date {
+      color: gray;
+      font-size: 12px;
+    }
+    #updated-time {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #888;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
   <h1>📬 我的临时邮箱</h1>
+  <div id="updated-time">更新时间加载中...</div>
   <div id="email-list">加载中...</div>
 
-<script>
-  function loadInbox() {
-    fetch('inbox.json?t=' + Date.now())
-      .then(res => res.json())
-      .then(data => {
-        const list = document.getElementById('email-list');
-        list.innerHTML = '';
-        data.forEach(mail => {
-          const div = document.createElement('div');
-          div.className = 'mail';
-          div.innerHTML = `
-            <div class="from">📩 来自：${mail.from}</div>
-            <div class="subject">主题：${mail.subject}</div>
-            <div class="date">时间：${mail.date}</div>
-          `;
-          list.appendChild(div);
+  <script>
+    function loadInbox() {
+      fetch('inbox.json?ts=' + Date.now())  // 防止缓存
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('email-list');
+          const updated = document.getElementById('updated-time');
+
+          updated.innerText = '📅 数据更新时间：' + new Date(data.updatedAt).toLocaleString();
+          list.innerHTML = '';
+
+          data.emails.forEach(mail => {
+            const div = document.createElement('div');
+            div.className = 'mail';
+            div.innerHTML = `
+              <div class="from">📩 来自：${mail.from}</div>
+              <div class="subject">主题：${mail.subject}</div>
+              <div class="date">时间：${mail.date}</div>
+            `;
+            list.appendChild(div);
+          });
+        })
+        .catch(err => {
+          document.getElementById('email-list').innerText = '加载失败，请稍后重试';
+          console.error(err);
         });
-      })
-      .catch(err => {
-        document.getElementById('email-list').innerText = '加载失败，请稍后重试';
-        console.error(err);
-      });
-  }
+    }
 
-  // 页面首次加载执行一次
-  loadInbox();
-
-  // 每 15 秒刷新一次
-  setInterval(loadInbox, 15000);
-</script>
+    loadInbox();
+    setInterval(loadInbox, 15000); // 每 15 秒自动刷新
+  </script>
 </body>
 </html>
 
