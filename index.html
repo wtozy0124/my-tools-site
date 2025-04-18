@@ -1,139 +1,79 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>临时谷歌邮箱 - 免费收信</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <style>
-    body {
-      font-family: "PingFang SC", "Microsoft Yahei", sans-serif;
-      background-color: #e9ecf3;
+<script>
+  const emailInput = document.getElementById("email");
+  const list = document.getElementById("email-list");
+  const timerText = document.getElementById("refresh-timer");
+
+  // 🔹 真实邮箱列表（你自己维护这个）
+  const emailList = [
+    "a1xxzz@gmail.com",
+    "b2yyzz@gmail.com",
+    "c3zztt@gmail.com"
+  ];
+
+  let currentIndex = 0;
+  let currentEmail = emailList[currentIndex];
+  let countdown = 5;
+
+  // ✅ 替换 select 和随机邮箱生成逻辑
+  function generateEmail() {
+    currentIndex = (currentIndex + 1) % emailList.length;
+    currentEmail = emailList[currentIndex];
+    emailInput.value = currentEmail;
+    fetchInbox(); // 切换邮箱时立即刷新
+  }
+
+  function copyEmail() {
+    navigator.clipboard.writeText(currentEmail);
+    alert("邮箱地址已复制：" + currentEmail);
+  }
+
+  function formatTime(iso) {
+    const date = new Date(iso);
+    return date.toLocaleString();
+  }
+
+  async function fetchInbox() {
+    try {
+      // 📩 调用不同邮箱的数据接口
+      const emailKey = encodeURIComponent(currentEmail);
+      const res = await fetch(`inbox/${emailKey}.json?ts=${Date.now()}`);
+      const data = await res.json();
+      renderInbox(data.messages || []);
+    } catch {
+      list.innerHTML = `<div class="p-4 text-gray-500 text-sm">加载失败或该邮箱暂无邮件</div>`;
     }
-    .btn-side {
-      @apply w-full py-3 text-white text-sm font-semibold rounded hover:opacity-90 transition;
-    }
-    .table-header {
-      @apply px-4 py-2 text-sm font-semibold text-gray-600 border-b bg-gray-50;
-    }
-    .table-cell {
-      @apply px-4 py-2 text-sm text-gray-800 border-b;
-    }
-  </style>
-</head>
-<body>
-  <!-- 顶部栏 -->
-  <div class="bg-gray-800 text-white px-4 py-3 flex justify-between items-center">
-    <div class="flex items-center space-x-2 text-lg font-bold">
-      <img src="https://www.linshiguge.com/logo.png" alt="logo" class="w-6 h-6" />
-      <span>临时谷歌</span>
-    </div>
-    <div class="flex items-center space-x-2 text-sm">
-      <input id="email" value="temp001@gmail.com" readonly class="bg-white text-gray-900 px-2 py-1 rounded text-sm font-mono w-60" />
-      <select class="px-2 py-1 rounded text-gray-700 bg-white border" disabled>
-        <option selected>更换gmail</option>
-      </select>
-    </div>
-  </div>
+  }
 
-  <!-- 主体布局 -->
-  <div class="flex min-h-[calc(100vh-56px)]">
-
-    <!-- 左侧侧边栏 -->
-    <div class="bg-[#e3e9f1] w-48 p-4 space-y-4">
-      <button onclick="copyEmail()" class="btn-side bg-cyan-500">📋 复制</button>
-      <button onclick="fetchInbox()" class="btn-side bg-cyan-600">🔄 刷新</button>
-      <button onclick="generateEmail()" class="btn-side bg-cyan-700">🎲 新邮箱</button>
-    </div>
-
-    <!-- 右侧内容区域 -->
-    <div class="flex-1 bg-white p-6">
-      <!-- 自动刷新提示 -->
-      <div class="mb-3 text-gray-500 text-sm" id="refresh-timer">正在接收邮件中... 5 秒后自动刷新</div>
-
-      <!-- 表格 -->
-      <div class="border rounded overflow-hidden">
-        <div class="grid grid-cols-3 bg-gray-100 text-left">
-          <div class="table-header">发件人</div>
-          <div class="table-header">主题</div>
-          <div class="table-header">时间</div>
-        </div>
-        <div id="email-list">
-          <!-- 邮件将被动态插入 -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 页脚 -->
-  <div class="text-center text-xs text-gray-400 py-4 bg-gray-100">
-    谷歌临时邮箱 - 提供免费的临时谷歌邮箱、临时gmail邮箱、谷歌邮箱临时接收服务
-  </div>
-
-  <script>
-    const emailInput = document.getElementById("email");
-    const list = document.getElementById("email-list");
-    const timerText = document.getElementById("refresh-timer");
-    let currentEmail = "temp001@gmail.com";
-    let countdown = 5;
-
-    function copyEmail() {
-      navigator.clipboard.writeText(currentEmail);
-      alert("邮箱地址已复制：" + currentEmail);
+  function renderInbox(messages) {
+    list.innerHTML = "";
+    if (!messages.length) {
+      list.innerHTML = `<div class="p-4 text-gray-500 text-sm">暂无邮件</div>`;
+      return;
     }
 
-    function generateEmail() {
-      const name = Math.random().toString(36).substring(2, 10);
-      currentEmail = name + "@gmail.com";
-      emailInput.value = currentEmail;
+    messages.reverse().forEach(msg => {
+      const row = document.createElement("div");
+      row.className = "grid grid-cols-3 hover:bg-gray-50";
+      row.innerHTML = `
+        <div class="table-cell">${msg.from || '未知'}</div>
+        <div class="table-cell">${msg.subject || '无主题'}</div>
+        <div class="table-cell">${formatTime(msg.date)}</div>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  function startCountdown() {
+    countdown--;
+    if (countdown <= 0) {
+      fetchInbox();
+      countdown = 5;
     }
+    timerText.textContent = `正在接收邮件中... ${countdown} 秒后自动刷新`;
+  }
 
-    function formatTime(iso) {
-      const date = new Date(iso);
-      return date.toLocaleString();
-    }
-
-    async function fetchInbox() {
-      try {
-        const res = await fetch("inbox.json?ts=" + Date.now());
-        const data = await res.json();
-        renderInbox(data.messages || []);
-      } catch {
-        list.innerHTML = `<div class="p-4 text-gray-500 text-sm">加载失败，请稍后再试</div>`;
-      }
-    }
-
-    function renderInbox(messages) {
-      list.innerHTML = "";
-      if (!messages.length) {
-        list.innerHTML = `<div class="p-4 text-gray-500 text-sm">暂无邮件</div>`;
-        return;
-      }
-
-      messages.reverse().forEach(msg => {
-        const row = document.createElement("div");
-        row.className = "grid grid-cols-3 hover:bg-gray-50";
-        row.innerHTML = `
-          <div class="table-cell">${msg.from || '未知'}</div>
-          <div class="table-cell">${msg.subject || '无主题'}</div>
-          <div class="table-cell">${formatTime(msg.date)}</div>
-        `;
-        list.appendChild(row);
-      });
-    }
-
-    function startCountdown() {
-      countdown--;
-      if (countdown <= 0) {
-        fetchInbox();
-        countdown = 5;
-      }
-      timerText.textContent = `正在接收邮件中... ${countdown} 秒后自动刷新`;
-    }
-
-    // 初始化
-    fetchInbox();
-    setInterval(startCountdown, 1000);
-  </script>
-</body>
-</html>
+  // 初始化
+  emailInput.value = currentEmail;
+  fetchInbox();
+  setInterval(startCountdown, 1000);
+</script>
